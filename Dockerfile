@@ -16,21 +16,19 @@ WORKDIR /app
 COPY --from=serverbuild /app/publish/mig .
 CMD ["dotnet", "Acme.BookStore.DbMigrator.dll"]
 
-FROM base AS frontend
-WORKDIR /app
-COPY --from=serverbuild /app/publish/web .
-CMD ["dotnet", "Acme.BookStore.Web.dll"]
-
 FROM base AS backend
 WORKDIR /app
 COPY --from=serverbuild /app/publish/host .
 CMD ["dotnet", "Acme.BookStore.HttpApi.Host.dll"]
 
+FROM base AS frontend
+WORKDIR /app
+COPY --from=serverbuild /app/publish/web .
+CMD ["dotnet", "Acme.BookStore.Web.dll"]
 
-
-# FROM base AS auth
-# WORKDIR /app
-# COPY --from=serverbuild /app/publish/auth .
-# CMD ["dotnet", "Acme.BookStore.AuthServer.dll"]
+FROM base AS auth
+WORKDIR /app
+COPY --from=serverbuild /app/publish/auth .
+CMD ["dotnet", "Acme.BookStore.AuthServer.dll"]
 
 
