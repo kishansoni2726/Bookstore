@@ -11,22 +11,26 @@ RUN dotnet publish /app/src/Acme.BookStore.HttpApi.Host/Acme.BookStore.HttpApi.H
     dotnet publish /app/src/Acme.BookStore.AuthServer/Acme.BookStore.AuthServer.csproj -c Release -o /app/publish/auth &&\
     dotnet publish /app/src/Acme.BookStore.DbMigrator/Acme.BookStore.DbMigrator.csproj -c Release -o /app/publish/mig
 
-FROM base AS backend
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS db-migration
 WORKDIR /app
-COPY --from=serverbuild /app/publish/host .
-CMD ["dotnet", "Acme.BookStore.HttpApi.Host.dll"]
+COPY --from=serverbuild /app/publish/mig .
+CMD ["dotnet", "Acme.BookStore.DbMigrator.dll"]
 
 FROM base AS frontend
 WORKDIR /app
 COPY --from=serverbuild /app/publish/web .
 CMD ["dotnet", "Acme.BookStore.Web.dll"]
 
-FROM base AS auth
+FROM base AS backend
 WORKDIR /app
-COPY --from=serverbuild /app/publish/auth .
-CMD ["dotnet", "Acme.BookStore.AuthServer.dll"]
+COPY --from=serverbuild /app/publish/host .
+CMD ["dotnet", "Acme.BookStore.HttpApi.Host.dll"]
 
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS db-migration
-WORKDIR /app
-COPY --from=serverbuild /app/publish/mig .
-CMD ["dotnet", "Acme.BookStore.DbMigrator.dll"]
+
+
+# FROM base AS auth
+# WORKDIR /app
+# COPY --from=serverbuild /app/publish/auth .
+# CMD ["dotnet", "Acme.BookStore.AuthServer.dll"]
+
+
